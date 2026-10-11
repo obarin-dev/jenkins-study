@@ -1,0 +1,22 @@
+# Jenkins 学習用（ローカル専用）
+services:
+  jenkins:
+    # LTS = Long Term Support。機能は控えめだが安定しており、学習・本番向けの推奨タグ
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    restart: unless-stopped
+    ports:
+      # "127.0.0.1:8080" に限定することで、同一Wi-Fi内の他端末からは見えない
+      - "127.0.0.1:8080:8080"
+      # 別マシンのビルドエージェントを繋ぐとき用。学習中は不要なのでコメントアウト
+      # - "127.0.0.1:50000:50000"
+    volumes:
+      # Jenkins の設定・ジョブ・プラグインはすべて /var/jenkins_home に入る。
+      # ここを名前付きvolumeにしておくと、コンテナを作り直しても中身が残る
+      - jenkins_home:/var/jenkins_home
+    environment:
+      # 日本語環境でのタイムゾーンずれを防ぐ
+      TZ: Asia/Tokyo
+
+volumes:
+  jenkins_home:
