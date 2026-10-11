@@ -26,6 +26,7 @@ pipeline {
                 sh 'sleep 2'
                 sh 'echo "テスト 1 ... OK"'
                 sh 'echo "テスト 2 ... OK"'
+                sh 'echo "テスト 3 ... OK （自動実行の確認用）"'
             }
         }
 
