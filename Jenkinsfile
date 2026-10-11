@@ -4,6 +4,14 @@ pipeline {
     agent any
 
     stages {
+        stage('コード確認') {
+            steps {
+                echo '=== リポジトリの中身 ==='
+                sh 'ls -la'
+                sh 'git log --oneline -1'
+            }
+        }
+
         stage('準備') {
             steps {
                 echo '=== 準備中 ==='
