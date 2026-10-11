@@ -12,6 +12,51 @@ pipeline {
             }
         }
 
+        stage('AIレビュー') {
+            steps {
+                echo '=== AIレビュー ==='
+                sh '''
+                    set -e
+
+                    # 1. 直近コミットの差分を取り出す（これがレビュー対象）
+                    git diff HEAD~1 HEAD > review.diff || true
+                    LINES=$(wc -l < review.diff | tr -d " ")
+                    echo "レビュー対象: ${LINES} 行の差分"
+
+                    if [ "${LINES}" -eq 0 ]; then
+                        echo "変更なし。レビューをスキップします"
+                        echo "変更なし" > review-result.md
+                        exit 0
+                    fi
+
+                    echo "--- 差分（先頭20行） ---"
+                    head -20 review.diff
+
+                    # 2. 本来はここで Claude に渡す
+                    #    claude -p "あなたはコードレビュアーです。以下の差分をレビューし、
+                    #               N+1クエリ・セキュリティ・命名の観点で指摘してください。" \
+                    #           < review.diff > review-result.md
+                    #
+                    # APIキー未設定のため、今はダミー結果を生成する
+                    {
+                      echo "# AIレビュー結果（ダミー）"
+                      echo ""
+                      echo "- 対象: ${LINES} 行の差分"
+                      echo "- 状態: ANTHROPIC_API_KEY 未設定のため未実行"
+                      echo ""
+                      echo "## 有効化の手順"
+                      echo "1. console.anthropic.com でAPIキーを発行"
+                      echo "2. Jenkins の Credentials に Secret text として登録"
+                      echo "3. Jenkinsfile の claude -p 行のコメントを外す"
+                    } > review-result.md
+
+                    echo "--- レビュー結果 ---"
+                    cat review-result.md
+                '''
+                archiveArtifacts artifacts: 'review.diff,review-result.md', allowEmptyArchive: true
+            }
+        }
+
         stage('準備') {
             steps {
                 echo '=== 準備中 ==='
